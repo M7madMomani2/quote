@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('partials/head',{page_title: 'Quotes' }) %>
+
+  <body>
+    <header>
+      <%- include('partials/header',{qPage : '#'
+      ,fPage:'/favorite',aPage:'/about-us'}) %>
+    </header>
+    <main>
+      <img id="imgbox2" src="/undraw_Checklist__re_2w7v.png" alt="" />
+
+      <div class="searchBar">
+        <div class="text">
+          <form action="/search" method="get" class="searchForm">
+            <input type="text" name="search" placeholder="Search.." required />
+            <!-- <input type="number" name="search" min="1"> -->
+            <label>category</label>
+            <input
+              type="radio"
+              name="searchType"
+              value="tag"
+              checked="checked"
+            />
+            <label>Author</label>
+            <input type="radio" name="searchType" value="author" />
+            <input type="submit" value="Go" id="btnSearch" />
+          </form>
+        </div>
+        <div class="text">
+          <% let uniqueOptions=[]; %> <% allQuotes.forEach( quote=> { %> <% if
+          (!uniqueOptions.includes(quote.category) && quote.category) { %> <%
+          uniqueOptions.push(quote.category); }}); %>
+          <select id="list">
+            <option value="All Quotes">All Quotes</option>
+            <% uniqueOptions.forEach( option=> { %>
+            <option value="<%= option %>"><%= option %></option>
+            <% }); %>
+          </select>
+        </div>
+      </div>
+
+      <div class="carrdContainer">
+        <% allQuotes.forEach( quote=> { %>
+        <div class="eachContainerQuote <%= quote.category %>">
+          <h2><%= quote.author %></h2>
+          <hr />
+          <h4><%= quote.quote %></h4>
+          <br /><br />
+          <h6>Category: <%= quote.category %></h6>
+
+          <form action="/addlike" method="POST" class="likeForm">
+            <input type="hidden" name="quote" value="<%= quote.quote %>" />
+            <input type="hidden" name="author" value="<%= quote.author %>" />
+            <input
+              type="hidden"
+              name="category"
+              value="<%= quote.category %>"
+            />
+            <input type="hidden" name="liked" value="<%= quote.liked %>" />
+            <!-- <label id="cat">Category <%= quote.category %></label> -->
+            <input type="submit" class="liked" name="submit" value="❤" />
+          </form>
+        </div>
+        <% })%>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      $(".likeForm").on("submit", (event) => {
+        event.preventDefault();
+
+        const data = {
+          quote: event.target.quote.value,
+          author: event.target.author.value,
+          category: event.target.author.value,
+          liked: event.target.liked.value,
+        };
+
+        console.log(data);
+        console.log(data["author"]);
+
+        // add loading
+
+        $.ajax({
+          url: "/addlike",
+          method: "POST",
+          data: data,
+        })
+          .then(() => {
+            swal({
+              title: "Good job!",
+              text: "Added to favorite !",
+              icon: "success",
+              button: "Done!",
+            });
+          })
+          .catch((error) => console.log(error));
+      });
+    </script>
+  </body>
+</html>
